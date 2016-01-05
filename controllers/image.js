@@ -46,23 +46,41 @@ module.exports = {
             for(var i=0; i < 6; i+=1) {
                 imgUrl += possible.charAt(Math.floor(Math.random() * possible.length));
             }
-            console.log(req.file)
-            var tempPath = req.file.path,
-                ext = path.extname(req.file.originalname).toLowerCase(),
-                targetPath = path.resolve('./public/upload/' + imgUrl + ext);
 
-            if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif') {
-                fs.rename(tempPath, targetPath, function(err) {
-                    if (err) throw err;
-                    res.redirect('/images/' + imgUrl);
-                });
-            } else {
-                fs.unlink(tempPath, function(err) {
-                    if (err) throw err;
-                    res.json(500, {error: 'Only image files are allowed.'});
-                });
-            }
-        };
+            Models.Image.find({ filename: imgUrl }, function(err, images) {
+                if (images.length> 0) {
+                    saveImage();
+                } else {
+                    var tempPath = req.file.path,
+                        ext = path.extname(req.file.originalname).toLowerCase(),
+                        targetPath = path.resolve('./public/upload/' + imgUrl + ext);
+
+                    if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif') {
+                        fs.rename(tempPath, targetPath, function(err) {
+                            if (err) throw err;
+                            
+                            var newImg = new Models.Image({
+                                title: req.body.title,
+                                description: req.body.description,
+                                filename: imgUrl + ext
+                            });
+                            newImg.save(function(err, image) {
+                                if (err) { 
+                                    throw err; 
+                                }
+                                console.log('Successfully inserted image: ' + image.filename);
+                                res.redirect('/images/' + image.uniqueId);
+                            });            
+                        });
+                    } else {
+                        fs.unlink(tempPath, function(err) {
+                            if (err) throw err;
+                            res.json(500, {error: 'Only image files are allowed.'});
+                        });
+                    }
+                }
+            });
+        }
         
         saveImage();
     },
