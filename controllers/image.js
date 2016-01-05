@@ -1,3 +1,6 @@
+var fs = require('fs'),
+    path = require('path');
+
 var viewModel = {
     image: {
         uniqueId:       1,
@@ -33,7 +36,32 @@ module.exports = {
         res.render('image', viewModel);
     },
     create: function(req, res) {
-        res.send('The image:create POST controller');
+        var saveImage = function() {
+            var possible = 'abcdefghijklmnopqrstuvwxyz0123456789',
+                imgUrl = '';
+
+            for(var i=0; i < 6; i+=1) {
+                imgUrl += possible.charAt(Math.floor(Math.random() * possible.length));
+            }
+            console.log(req.file)
+            var tempPath = req.file.path,
+                ext = path.extname(req.file.originalname).toLowerCase(),
+                targetPath = path.resolve('./public/upload/' + imgUrl + ext);
+
+            if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif') {
+                fs.rename(tempPath, targetPath, function(err) {
+                    if (err) throw err;
+                    res.redirect('/images/' + imgUrl);
+                });
+            } else {
+                fs.unlink(tempPath, function(err) {
+                    if (err) throw err;
+                    res.json(500, {error: 'Only image files are allowed.'});
+                });
+            }
+        };
+        
+        saveImage();
     },
     like: function(req, res) {
         res.send('The image:like POST controller');
