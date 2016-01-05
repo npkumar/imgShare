@@ -1,6 +1,8 @@
 var fs = require('fs'),
     path = require('path');
 
+var sidebar = require('../helpers/sidebar');
+
 var viewModel = {
     image: {
         uniqueId:       1,
@@ -33,7 +35,9 @@ var viewModel = {
 
 module.exports = {
     index: function(req, res) {
-        res.render('image', viewModel);
+        sidebar(viewModel, function(viewModel){
+            res.render('index', viewModel); 
+        });
     },
     create: function(req, res) {
         var saveImage = function() {

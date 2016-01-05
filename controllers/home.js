@@ -1,3 +1,5 @@
+var sidebar = require('../helpers/sidebar');
+
 var viewModel = {
     images: [
         {
@@ -38,6 +40,8 @@ var viewModel = {
 
 module.exports = {
     index: function(req, res) {
-        res.render('index', viewModel);
+        sidebar(viewModel, function(viewModel){
+            res.render('index', viewModel); 
+        });
     }
 };
