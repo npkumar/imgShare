@@ -36,7 +36,7 @@ var viewModel = {
 module.exports = {
     index: function(req, res) {
         sidebar(viewModel, function(viewModel){
-            res.render('index', viewModel); 
+            res.render('image', viewModel); 
         });
     },
     create: function(req, res) {
